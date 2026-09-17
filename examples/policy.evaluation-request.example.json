@@ -1,0 +1,56 @@
+{
+  "contract_version": "0.1",
+  "request_id": "req-example-telemetry-001",
+  "requested_at": "2026-09-16T23:45:00Z",
+  "caller": {
+    "type": "service",
+    "id": "goreecloud-observability",
+    "identity_ref": "identity://service/goreecloud-observability"
+  },
+  "subject": {
+    "type": "user",
+    "id_ref": "identity://user/example",
+    "claims_ref": "identity-evidence://example/session-001"
+  },
+  "action": "telemetry.process",
+  "resource": {
+    "type": "operational-telemetry",
+    "id_ref": "telemetry://example/signal-001",
+    "owner_ref": "service://example-component",
+    "classification": "internal-operational"
+  },
+  "purpose": "service-health",
+  "environment": "test",
+  "policy_refs": [
+    {
+      "policy_id": "privacy.telemetry-purpose",
+      "policy_version": "1.0.0-draft"
+    }
+  ],
+  "authority_inputs": [
+    {
+      "owner_authority": "goreecloud-identity",
+      "evidence_ref": "identity-evidence://example/session-001",
+      "version": "example",
+      "observed_at": "2026-09-16T23:44:45Z",
+      "valid_until": "2026-09-16T23:49:45Z",
+      "digest": null
+    },
+    {
+      "owner_authority": "privacy-shield",
+      "evidence_ref": "privacy-evidence://example/telemetry-purpose-001",
+      "version": "example",
+      "observed_at": "2026-09-16T23:44:50Z",
+      "valid_until": "2026-09-16T23:49:50Z",
+      "digest": null
+    }
+  ],
+  "context": {
+    "telemetry_category": "operational-health",
+    "requested_retention_seconds": 300,
+    "example_only": true
+  },
+  "correlation_id": "corr-example-001",
+  "mode": "simulation",
+  "requested_explanation_level": "audit"
+}
