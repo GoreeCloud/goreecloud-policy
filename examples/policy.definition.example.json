@@ -1,0 +1,46 @@
+{
+  "contract_version": "0.1",
+  "policy_id": "privacy.telemetry-purpose",
+  "policy_version": "1.0.0-draft",
+  "owner_authority": "privacy-shield",
+  "lifecycle": "draft",
+  "evaluation_mode": "simulation",
+  "description": "Example-only Privacy Shield-owned rule set for determining whether operational telemetry may be processed for a declared purpose.",
+  "scope": {
+    "actions": ["telemetry.process"],
+    "resource_classes": ["operational-telemetry"],
+    "purposes": ["service-health"],
+    "environments": ["test"]
+  },
+  "effective_at": "2026-09-16T00:00:00Z",
+  "expires_at": null,
+  "freshness": {
+    "max_age_seconds": 300,
+    "stale_behavior": "indeterminate"
+  },
+  "composition": {
+    "mode": "all-required",
+    "custom_evaluator_ref": null
+  },
+  "override_policy": {
+    "allowed": false,
+    "authority_required": [],
+    "max_duration_seconds": null
+  },
+  "evaluator": {
+    "type": "declarative",
+    "ref": "rules/privacy.telemetry-purpose.example.json"
+  },
+  "rule_refs": [
+    {
+      "rule_id": "privacy.telemetry-purpose.minimum",
+      "rule_version": "1.0.0-draft",
+      "owner_authority": "privacy-shield",
+      "required": true,
+      "non_overridable": true
+    }
+  ],
+  "metadata": {
+    "example_only": true
+  }
+}
