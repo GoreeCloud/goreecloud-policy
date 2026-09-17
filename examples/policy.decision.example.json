@@ -1,0 +1,41 @@
+{
+  "contract_version": "0.1",
+  "decision_id": "dec-example-telemetry-001",
+  "request_id": "req-example-telemetry-001",
+  "mode": "simulation",
+  "outcome": "allow",
+  "evaluated_at": "2026-09-16T23:45:01Z",
+  "valid_until": "2026-09-16T23:50:01Z",
+  "freshness": "current",
+  "evaluated_policies": [
+    {
+      "policy_id": "privacy.telemetry-purpose",
+      "policy_version": "1.0.0-draft",
+      "owner_authority": "privacy-shield",
+      "definition_digest": null
+    }
+  ],
+  "owning_authorities": [
+    "privacy-shield",
+    "goreecloud-identity"
+  ],
+  "reasons": [
+    {
+      "code": "privacy-purpose-satisfied-example",
+      "owner_authority": "privacy-shield",
+      "message": "Example simulation indicates the declared service-health purpose would satisfy the referenced draft privacy rule under the supplied current inputs.",
+      "explanation_ref": "explanation://example/dec-example-telemetry-001"
+    }
+  ],
+  "conditions": [],
+  "missing_inputs": [],
+  "enforcement": {
+    "required_action": "no-enforcement",
+    "retryable": false
+  },
+  "evidence_refs": [
+    "privacy-evidence://example/telemetry-purpose-001",
+    "identity-evidence://example/session-001"
+  ],
+  "correlation_id": "corr-example-001"
+}
