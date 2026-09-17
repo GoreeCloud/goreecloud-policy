@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://goreecloud.com/schemas/policy.evaluation-request.schema.json",
+  "title": "GoreeCloud Policy Evaluation Request",
+  "description": "Purpose-bound runtime request for GoreeCloud Policy evaluation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "request_id",
+    "requested_at",
+    "caller",
+    "subject",
+    "action",
+    "resource",
+    "purpose",
+    "environment",
+    "policy_refs",
+    "authority_inputs",
+    "context",
+    "correlation_id",
+    "mode",
+    "requested_explanation_level"
+  ],
+  "properties": {
+    "contract_version": {"const": "0.1"},
+    "request_id": {"type": "string", "minLength": 1},
+    "requested_at": {"type": "string", "format": "date-time"},
+    "caller": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "identity_ref"],
+      "properties": {
+        "type": {"enum": ["application", "service", "system", "enforcement-point"]},
+        "id": {"type": "string", "minLength": 1},
+        "identity_ref": {"type": ["string", "null"]}
+      }
+    },
+    "subject": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["type", "id_ref", "claims_ref"],
+      "properties": {
+        "type": {"enum": ["user", "device", "service", "application", "workload", "anonymous"]},
+        "id_ref": {"type": ["string", "null"]},
+        "claims_ref": {"type": ["string", "null"]}
+      }
+    },
+    "action": {"type": "string", "minLength": 1},
+    "resource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id_ref", "owner_ref", "classification"],
+      "properties": {
+        "type": {"type": "string", "minLength": 1},
+        "id_ref": {"type": ["string", "null"]},
+        "owner_ref": {"type": ["string", "null"]},
+        "classification": {"type": ["string", "null"]}
+      }
+    },
+    "purpose": {"type": "string", "minLength": 1},
+    "environment": {"type": "string", "minLength": 1},
+    "policy_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["policy_id", "policy_version"],
+        "properties": {
+          "policy_id": {"type": "string", "minLength": 1},
+          "policy_version": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "authority_inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["owner_authority", "evidence_ref", "version", "observed_at", "valid_until", "digest"],
+        "properties": {
+          "owner_authority": {"$ref": "#/$defs/authority"},
+          "evidence_ref": {"type": "string", "minLength": 1},
+          "version": {"type": ["string", "null"]},
+          "observed_at": {"type": "string", "format": "date-time"},
+          "valid_until": {"type": ["string", "null"], "format": "date-time"},
+          "digest": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "context": {
+      "type": "object",
+      "description": "Bounded purpose-specific evaluation context. Sensitive values should be referenced rather than copied when possible.",
+      "additionalProperties": true
+    },
+    "correlation_id": {"type": ["string", "null"]},
+    "mode": {"enum": ["enforcing", "advisory", "simulation"]},
+    "requested_explanation_level": {"enum": ["none", "user", "audit"]}
+  },
+  "$defs": {
+    "authority": {
+      "enum": [
+        "goreecloud-manager",
+        "privacy-shield",
+        "wardveil-security",
+        "everkeep",
+        "glaze-ui",
+        "goreecloud-mesh",
+        "goreecloud-identity",
+        "goreecloud-policy",
+        "goreecloud-observability",
+        "other-approved-authority"
+      ]
+    }
+  }
+}
