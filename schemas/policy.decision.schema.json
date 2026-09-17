@@ -109,63 +109,52 @@
       "then": {
         "properties": {
           "freshness": {"const": "current"},
-          "missing_inputs": {"maxItems": 0},
-          "enforcement": {
-            "properties": {"required_action": {"const": "enforce-allow"}}
-          }
+          "missing_inputs": {"maxItems": 0}
         }
       }
     },
     {
-      "if": {"properties": {"outcome": {"const": "deny"}}, "required": ["outcome"]},
-      "then": {
-        "properties": {
-          "enforcement": {
-            "properties": {"required_action": {"const": "enforce-deny"}}
-          }
-        }
-      }
+      "if": {
+        "properties": {"mode": {"const": "enforcing"}, "outcome": {"const": "allow"}},
+        "required": ["mode", "outcome"]
+      },
+      "then": {"properties": {"enforcement": {"properties": {"required_action": {"const": "enforce-allow"}}}}}
+    },
+    {
+      "if": {
+        "properties": {"mode": {"const": "enforcing"}, "outcome": {"const": "deny"}},
+        "required": ["mode", "outcome"]
+      },
+      "then": {"properties": {"enforcement": {"properties": {"required_action": {"const": "enforce-deny"}}}}}
     },
     {
       "if": {"properties": {"outcome": {"const": "conditional"}}, "required": ["outcome"]},
-      "then": {
-        "properties": {
-          "conditions": {"minItems": 1},
-          "enforcement": {
-            "properties": {"required_action": {"const": "require-conditions"}}
-          }
-        }
-      }
+      "then": {"properties": {"conditions": {"minItems": 1}}}
     },
     {
-      "if": {"properties": {"outcome": {"const": "defer"}}, "required": ["outcome"]},
-      "then": {
-        "properties": {
-          "enforcement": {
-            "properties": {"required_action": {"const": "defer"}}
-          }
-        }
-      }
+      "if": {
+        "properties": {"mode": {"const": "enforcing"}, "outcome": {"const": "conditional"}},
+        "required": ["mode", "outcome"]
+      },
+      "then": {"properties": {"enforcement": {"properties": {"required_action": {"const": "require-conditions"}}}}}
     },
     {
-      "if": {"properties": {"outcome": {"enum": ["indeterminate", "error"]}}, "required": ["outcome"]},
-      "then": {
-        "properties": {
-          "enforcement": {
-            "properties": {"required_action": {"const": "no-enforcement"}}
-          }
-        }
-      }
+      "if": {
+        "properties": {"mode": {"const": "enforcing"}, "outcome": {"const": "defer"}},
+        "required": ["mode", "outcome"]
+      },
+      "then": {"properties": {"enforcement": {"properties": {"required_action": {"const": "defer"}}}}}
+    },
+    {
+      "if": {
+        "properties": {"mode": {"const": "enforcing"}, "outcome": {"enum": ["indeterminate", "error"]}},
+        "required": ["mode", "outcome"]
+      },
+      "then": {"properties": {"enforcement": {"properties": {"required_action": {"const": "no-enforcement"}}}}}
     },
     {
       "if": {"properties": {"mode": {"enum": ["advisory", "simulation"]}}, "required": ["mode"]},
-      "then": {
-        "properties": {
-          "enforcement": {
-            "properties": {"required_action": {"const": "no-enforcement"}}
-          }
-        }
-      }
+      "then": {"properties": {"enforcement": {"properties": {"required_action": {"const": "no-enforcement"}}}}}
     }
   ],
   "$defs": {
