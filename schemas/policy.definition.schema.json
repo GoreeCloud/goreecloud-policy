@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://goreecloud.com/schemas/policy.definition.schema.json",
+  "title": "GoreeCloud Policy Definition",
+  "description": "Versioned GoreeCloud Policy definition envelope. Policy ownership remains with the declared domain authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "policy_id",
+    "policy_version",
+    "owner_authority",
+    "lifecycle",
+    "evaluation_mode",
+    "description",
+    "scope",
+    "effective_at",
+    "expires_at",
+    "freshness",
+    "composition",
+    "override_policy",
+    "evaluator",
+    "rule_refs"
+  ],
+  "properties": {
+    "contract_version": {"const": "0.1"},
+    "policy_id": {"type": "string", "pattern": "^[a-z0-9]+(?:[._-][a-z0-9]+)*$"},
+    "policy_version": {"type": "string", "minLength": 1},
+    "owner_authority": {"$ref": "#/$defs/authority"},
+    "lifecycle": {"enum": ["draft", "under-review", "active", "deprecated", "retired"]},
+    "evaluation_mode": {"enum": ["enforcing", "advisory", "simulation"]},
+    "description": {"type": "string", "minLength": 1},
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["actions", "resource_classes", "purposes", "environments"],
+      "properties": {
+        "actions": {"$ref": "#/$defs/stringList"},
+        "resource_classes": {"$ref": "#/$defs/stringList"},
+        "purposes": {"$ref": "#/$defs/stringList"},
+        "environments": {"$ref": "#/$defs/stringList"}
+      }
+    },
+    "effective_at": {"type": "string", "format": "date-time"},
+    "expires_at": {"type": ["string", "null"], "format": "date-time"},
+    "freshness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_age_seconds", "stale_behavior"],
+      "properties": {
+        "max_age_seconds": {"type": ["integer", "null"], "minimum": 0},
+        "stale_behavior": {"enum": ["indeterminate", "deny", "error"]}
+      }
+    },
+    "composition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "custom_evaluator_ref"],
+      "properties": {
+        "mode": {"enum": ["all-required", "any-required", "priority-ordered", "domain-owner-final", "custom"]},
+        "custom_evaluator_ref": {"type": ["string", "null"]}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"mode": {"const": "custom"}}, "required": ["mode"]},
+          "then": {"properties": {"custom_evaluator_ref": {"type": "string", "minLength": 1}}}
+        }
+      ]
+    },
+    "override_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allowed", "authority_required", "max_duration_seconds"],
+      "properties": {
+        "allowed": {"type": "boolean"},
+        "authority_required": {"$ref": "#/$defs/stringList"},
+        "max_duration_seconds": {"type": ["integer", "null"], "minimum": 1}
+      }
+    },
+    "evaluator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "ref"],
+      "properties": {
+        "type": {"enum": ["declarative", "code-ref", "external-authority-ref"]},
+        "ref": {"type": "string", "minLength": 1}
+      }
+    },
+    "rule_refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["rule_id", "rule_version", "owner_authority", "required", "non_overridable"],
+        "properties": {
+          "rule_id": {"type": "string", "minLength": 1},
+          "rule_version": {"type": "string", "minLength": 1},
+          "owner_authority": {"$ref": "#/$defs/authority"},
+          "required": {"type": "boolean"},
+          "non_overridable": {"type": "boolean"}
+        }
+      }
+    },
+    "metadata": {"type": "object", "additionalProperties": true}
+  },
+  "$defs": {
+    "authority": {
+      "enum": [
+        "goreecloud-manager",
+        "privacy-shield",
+        "wardveil-security",
+        "everkeep",
+        "glaze-ui",
+        "goreecloud-mesh",
+        "goreecloud-identity",
+        "goreecloud-policy",
+        "goreecloud-observability",
+        "other-approved-authority"
+      ]
+    },
+    "stringList": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    }
+  }
+}
