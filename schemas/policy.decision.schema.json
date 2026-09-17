@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://goreecloud.com/schemas/policy.decision.schema.json",
+  "title": "GoreeCloud Policy Decision",
+  "description": "Versioned GoreeCloud Policy decision envelope with authority, freshness, explanation, and enforcement semantics.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "decision_id",
+    "request_id",
+    "mode",
+    "outcome",
+    "evaluated_at",
+    "valid_until",
+    "freshness",
+    "evaluated_policies",
+    "owning_authorities",
+    "reasons",
+    "conditions",
+    "missing_inputs",
+    "enforcement",
+    "evidence_refs",
+    "correlation_id"
+  ],
+  "properties": {
+    "contract_version": {"const": "0.1"},
+    "decision_id": {"type": "string", "minLength": 1},
+    "request_id": {"type": "string", "minLength": 1},
+    "mode": {"enum": ["enforcing", "advisory", "simulation"]},
+    "outcome": {"enum": ["allow", "deny", "conditional", "defer", "indeterminate", "error"]},
+    "evaluated_at": {"type": "string", "format": "date-time"},
+    "valid_until": {"type": ["string", "null"], "format": "date-time"},
+    "freshness": {"enum": ["current", "stale", "unknown"]},
+    "evaluated_policies": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["policy_id", "policy_version", "owner_authority", "definition_digest"],
+        "properties": {
+          "policy_id": {"type": "string", "minLength": 1},
+          "policy_version": {"type": "string", "minLength": 1},
+          "owner_authority": {"$ref": "#/$defs/authority"},
+          "definition_digest": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "owning_authorities": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/authority"}
+    },
+    "reasons": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "owner_authority", "message", "explanation_ref"],
+        "properties": {
+          "code": {"type": "string", "minLength": 1},
+          "owner_authority": {"$ref": "#/$defs/authority"},
+          "message": {"type": ["string", "null"]},
+          "explanation_ref": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "conditions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["condition_id", "type", "description", "satisfaction_evidence_required"],
+        "properties": {
+          "condition_id": {"type": "string", "minLength": 1},
+          "type": {"type": "string", "minLength": 1},
+          "description": {"type": "string", "minLength": 1},
+          "satisfaction_evidence_required": {"type": "boolean"}
+        }
+      }
+    },
+    "missing_inputs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "enforcement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required_action", "retryable"],
+      "properties": {
+        "required_action": {"enum": ["enforce-allow", "enforce-deny", "require-conditions", "defer", "no-enforcement"]},
+        "retryable": {"type": "boolean"}
+      }
+    },
+    "evidence_refs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "correlation_id": {"type": ["string", "null"]}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"outcome": {"const": "allow"}}, "required": ["outcome"]},
+      "then": {
+        "properties": {
+          "freshness": {"const": "current"},
+          "missing_inputs": {"maxItems": 0},
+          "enforcement": {
+            "properties": {"required_action": {"const": "enforce-allow"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"outcome": {"const": "deny"}}, "required": ["outcome"]},
+      "then": {
+        "properties": {
+          "enforcement": {
+            "properties": {"required_action": {"const": "enforce-deny"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"outcome": {"const": "conditional"}}, "required": ["outcome"]},
+      "then": {
+        "properties": {
+          "conditions": {"minItems": 1},
+          "enforcement": {
+            "properties": {"required_action": {"const": "require-conditions"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"outcome": {"const": "defer"}}, "required": ["outcome"]},
+      "then": {
+        "properties": {
+          "enforcement": {
+            "properties": {"required_action": {"const": "defer"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"outcome": {"enum": ["indeterminate", "error"]}}, "required": ["outcome"]},
+      "then": {
+        "properties": {
+          "enforcement": {
+            "properties": {"required_action": {"const": "no-enforcement"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"mode": {"enum": ["advisory", "simulation"]}}, "required": ["mode"]},
+      "then": {
+        "properties": {
+          "enforcement": {
+            "properties": {"required_action": {"const": "no-enforcement"}}
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "authority": {
+      "enum": [
+        "goreecloud-manager",
+        "privacy-shield",
+        "wardveil-security",
+        "everkeep",
+        "glaze-ui",
+        "goreecloud-mesh",
+        "goreecloud-identity",
+        "goreecloud-policy",
+        "goreecloud-observability",
+        "other-approved-authority"
+      ]
+    }
+  }
+}
